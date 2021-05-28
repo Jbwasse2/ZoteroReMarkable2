@@ -1,0 +1,3 @@
+pyzotero
+pydash
+python-dotenv
