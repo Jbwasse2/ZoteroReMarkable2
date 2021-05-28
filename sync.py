@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 from pydash import _
 from pyzotero import zotero as pyzotero
 
-path = Path("./env.env")
+path = Path("./example.env")
 load_dotenv(dotenv_path=path)
 
 # import pprint
