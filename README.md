@@ -8,7 +8,7 @@ My Zotero version is 5.0.96.2, my ReMarkable2 version is 2.7.0.51.
 ## Setup
  - install rmapi
  - Download the [sync.py](https://github.com/Jbwasse2/ZoteroReMarkable2/blob/master/sync.py)
- - create a `.env` file
+ - `mv example.env my.env`
 
 ### Dependancies
 - python3

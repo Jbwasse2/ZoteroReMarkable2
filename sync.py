@@ -1,4 +1,5 @@
 import os
+import pickle
 import subprocess
 from pathlib import Path
 
@@ -7,12 +8,17 @@ from dotenv import load_dotenv
 from pydash import _
 from pyzotero import zotero as pyzotero
 
-path = Path("./example.env")
-load_dotenv(dotenv_path=path)
 
-# import pprint
-# pp = pprint.PrettyPrinter(indent=4)
-# # usage pp.pprint
+#Zotero gets mad if you try to use pyzotero too much which is a pain for development.
+#So this is a nice tool to save the collection structure reported by zotero.
+def saveCollection(l):
+    fp = open('testZotero.pkl', 'wb')
+    pickle.dump(l, fp)
+
+
+DEBUG=True
+path = Path("./my.env")
+load_dotenv(dotenv_path=path)
 
 LIBRARY_TYPE = 'user'
 
@@ -25,12 +31,18 @@ STORAGE_BASE_PATH = os.getenv('STORAGE_BASE_PATH') #on local computer
 
 RMAPI_LS = f"rmapi ls /{FOLDER_NAME}"
 
+class GodClass():
+    def __init__(self):
+        self.zotero = 
+        self.parent_collection = None
+    def 
 zotero = pyzotero.Zotero(LIBRARY_ID, LIBRARY_TYPE, API_KEY)
 
 def getCollectionId(zotero, collection_name):
     collections = zotero.collections(limit=200)
     for collection in collections:
-        if (collection.get('data').get('name') == collection_name):
+        pu.db
+        if (collection.get('data').get('name') in collection_name):
             return collection.get('data').get('key')
 
 def getPapersTitleAndPathsFromZoteroCollection(zotero, collection_id, STORAGE_BASE_PATH):
