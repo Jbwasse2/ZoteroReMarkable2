@@ -1,7 +1,9 @@
-# Zotero Remarkable Sync
+# Zotero Remarkable2 Sync
 Using code from https://github.com/oscarmorrison/zoteroRemarkable, but I use a more up to date version of Zotero and the ReMarkable2.
 It should be noted that this script currently does not sync the whole Zotero library, just a collection in "My Library". 
 Currently this code is also just a one way sync, the collection in "My Library" will dictate what appears on the ReMarkable2.
+
+My Zotero version is 5.0.96.2, my ReMarkable2 version is 2.7.0.51.
 
 ## Setup
  - install rmapi
