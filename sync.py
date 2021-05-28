@@ -1,6 +1,7 @@
 import os
 import pickle
 import subprocess
+import sys
 from pathlib import Path
 
 import pudb
@@ -16,17 +17,57 @@ def saveCollection(l):
     pickle.dump(l, fp)
 
 
+# Software practices are like a good analogy. I don't have one.
 class GodClass():
-    def __init__(self, debug):
+    def __init__(self, debug, limit=200):
         self.debug = debug
         self.API_KEY, self.LIBRARY_ID, self.COLLECTION_NAME, self.FOLDER_NAME, self.STORAGE_BASE_PATH, self.LIBRARY_TYPE = self.get_env_vars()
         self.RMAPI_LS = f"rmapi ls /{self.FOLDER_NAME}"
         self.zotero = pyzotero.Zotero(self.LIBRARY_ID, self.LIBRARY_TYPE, self.API_KEY)
-        self.parent_collection = None
+#        self.collections = self.zotero.collections(limit=limit)
+        fp = open("./testZotero.pkl", "rb")
+        self.collections = pickle.load(fp)
+        #SP88ERUL
+        self.parent_collection_id = self.getCollectionId(self.zotero, self.COLLECTION_NAME)
+        self.sub_collection = self.get_sub_collection(self.parent_collection_id, self.FOLDER_NAME)
+        self.setup_file_structure(self.sub_collection)
 
+    def setup_file_structure(self, sub_collection):
+        for (_,folder) in sub_collection:
+            pu.db
+            flag = 0
+            command = "rmapi find " + folder
+            try:
+                results = subprocess.check_output(command, shell=True, stderr=subprocess.STDOUT).decode("utf-8").split('\n')
+            except subprocess.CalledProcessError as e:
+                pu.db
+                if "directory doesn't exist" in str(e.output):
+                    flag = 1
+            expected_results = "[d] " + os.path.basename(folder)
+            #Don't have to worry about ordering of creating dir
+            #because of recursion in get_sub_collection
+            if expected_results not in results or flag:
+                command = "rmapi mkdir " + folder
+                results = subprocess.check_output(command, shell=True).decode("utf-8")
+
+    # oh boy intro to programming recursion here I come
+    # my gut feeling is that this might slow stuff down because
+    # the computational complexity might be huge.
+    def get_sub_collection(self, parent_node_id, parent_dir):
+        #WoNt SoMeBoDy ThInK oF tHe ChIlDrEn
+        children = []
+        for collection in self.collections:
+            parent = collection.get('data').get('parentCollection')
+            if parent == parent_node_id:
+                children.append((collection.get('data').get('key'),collection.get('data').get('name') ))
+        ret = [(parent_node_id, parent_dir)]
+        for child in children:
+            ret = ret + self.get_sub_collection(child[0], parent_dir + "/" +  child[1])
+        return ret
 
     def get_env_vars(self):
-        path = Path("./my.env")
+        script_dir = sys.path[0]
+        path = Path(script_dir + "/my.env")
         load_dotenv(dotenv_path=path)
 
 
@@ -89,7 +130,6 @@ class GodClass():
         paperNames = []
         for paper in papers:
             paperNames.append(os.path.splitext(paper.get('title'))[0])
-        pu.db
         for f in remarkable_files:
             if (f not in paperNames):
                 delete_list.append(f)
@@ -112,7 +152,6 @@ class GodClass():
             collection_id = None
             papers = self.getPapersTitleAndPathsFromZoteroCollection(self.zotero, collection_id, self.STORAGE_BASE_PATH, collection_items)
         else:
-            collection_id = self.getCollectionId(self.zotero, self.COLLECTION_NAME)
 
             # get papers that we want from Zetero Remarkable collection
             papers = self.getPapersTitleAndPathsFromZoteroCollection(self.zotero, collection_id, self.STORAGE_BASE_PATH)
@@ -132,6 +171,6 @@ class GodClass():
 
 if __name__ == "__main__":
     print('------- sync started -------')
-    synchronizer = GodClass(debug=True)
+    synchronizer = GodClass(debug=False)
     synchronizer.synchronize()
     print('------- sync complete -------')
