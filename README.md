@@ -1,15 +1,16 @@
 # Zotero Remarkable2 Sync
-##Disclaimer
-Use this software at your own risk!
-The files are offered without any warranty and you will be violating the reMarkable AS EULA by using them. There may be bugs, you may lose data, your device may crash, etc.
 
 Using code from https://github.com/oscarmorrison/zoteroRemarkable, but I use a more up to date version of Zotero and the ReMarkable2.
 It should be noted that this script currently does not sync the whole Zotero library, just a collection in "My Library" (recursively).
 Currently this code is also just a one way sync, the collection in "My Library" will dictate what appears on the ReMarkable2.
 
 My Zotero version is 5.0.96.2, my ReMarkable2 version is 2.7.0.51.
+# **Disclaimer**
+Use this software at your own risk!
+The files are offered without any warranty and you will be violating the reMarkable AS EULA by using them. There may be bugs, you may lose data, your device may crash, etc.
 
 ## Setup
+On the computer that has Zotero installed on it
  - install [rmapi](https://github.com/juruen/rmapi)
 - 'pip install -r requirements.txt'
  - Download the [sync.py](https://github.com/Jbwasse2/ZoteroReMarkable2/blob/master/sync.py)
@@ -19,9 +20,9 @@ My Zotero version is 5.0.96.2, my ReMarkable2 version is 2.7.0.51.
 
 
 ### Env file
-- Visit https://github.com/urschrei/pyzotero and get the following
-  - Zotero api key
-  - Zotero library_id (from zotero web)
+- Follow the QuickStart section of https://github.com/urschrei/pyzotero which does a good job of explaining how to get the following
+  - (API_KEY) Zotero api_key
+  - (LIBRARY_ID) Zotero library_id
   - Currently library_type is set to just 'user', 'group' has not been tested yet. Don't worry about this if your collection is in "My Library". I have not tested syncing between a Group Library yet, but you can try editing "LIBRARY_TYPE = 'user'" to "LIBRARY_TYPE = 'group'" and see what happens.
 - COLLECTION_NAME is the name of the collection in 'My Library' that you wish to sync with the ReMarkable2.
 - FOLDER_NAME is the directory to the created folder on the ReMarkable2. So if for example you have a file system where you want to sync a folder named "zotero" and it is in a folder called "research" which sits on the top level of your file system, "FOLDER_NAME=/research/zotero"
