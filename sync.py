@@ -4,7 +4,6 @@ import subprocess
 import sys
 from pathlib import Path
 
-import pudb
 from dotenv import load_dotenv
 from pydash import _
 from pyzotero import zotero as pyzotero
