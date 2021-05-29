@@ -20,27 +20,22 @@ def saveCollection(l):
 # Software practices are like a good analogy. I don't have one.
 class GodClass():
     def __init__(self, debug, limit=200):
+        pu.db
         self.debug = debug
         self.API_KEY, self.LIBRARY_ID, self.COLLECTION_NAME, self.FOLDER_NAME, self.STORAGE_BASE_PATH, self.LIBRARY_TYPE = self.get_env_vars()
-        self.RMAPI_LS = f"rmapi ls /{self.FOLDER_NAME}"
         self.zotero = pyzotero.Zotero(self.LIBRARY_ID, self.LIBRARY_TYPE, self.API_KEY)
-#        self.collections = self.zotero.collections(limit=limit)
-        fp = open("./testZotero.pkl", "rb")
-        self.collections = pickle.load(fp)
-        #SP88ERUL
+        self.collections = self.zotero.collections(limit=limit)
         self.parent_collection_id = self.getCollectionId(self.zotero, self.COLLECTION_NAME)
         self.sub_collection = self.get_sub_collection(self.parent_collection_id, self.FOLDER_NAME)
         self.setup_file_structure(self.sub_collection)
 
     def setup_file_structure(self, sub_collection):
         for (_,folder) in sub_collection:
-            pu.db
             flag = 0
             command = "rmapi find " + folder
             try:
                 results = subprocess.check_output(command, shell=True, stderr=subprocess.STDOUT).decode("utf-8").split('\n')
             except subprocess.CalledProcessError as e:
-                pu.db
                 if "directory doesn't exist" in str(e.output):
                     flag = 1
             expected_results = "[d] " + os.path.basename(folder)
@@ -99,7 +94,8 @@ class GodClass():
                     papers.append({ 'title': item_title, 'path': item_pdf_path + "/" + item_title })
         return papers
 
-    def getPapersFromRemarkable(self, RMAPI_LS):
+    def getPapersFromRemarkable(self, folder_name):
+        RMAPI_LS = f"rmapi ls {folder_name}"
         remarkable_files = []
         for f in subprocess.check_output(RMAPI_LS, shell=True).decode("utf-8").split('\n'):
             if '[d]\t' not in f and f != "":
@@ -114,16 +110,17 @@ class GodClass():
                 upload_list.append(paper)
         return upload_list
 
-    def uploadPapers(self, papers):
+    def uploadPapers(self, papers, cloud_path):
         print(f'uploading {len(papers)} papers')
         for paper in papers:
             path = paper.get('path')
-            COMMAND = f"rmapi put \"{path}\" /{self.FOLDER_NAME}"
+            COMMAND = f"rmapi put \"{path}\" {cloud_path}"
             try:
                 print(COMMAND)
                 os.system(COMMAND)
-            except:
+            except Exception as e:
                 print(f'Failed to upload {path}')
+                print(e)
 
     def getDeleteListOfPapers(self, remarkable_files, papers):
         delete_list = []
@@ -138,7 +135,7 @@ class GodClass():
     def deletePapers(self, delete_list):
         print(f'deleting {len(delete_list)} papers')
         for paper in delete_list:
-            COMMAND = f"rmapi rm /{FOLDER_NAME}/\"{paper}\""
+            COMMAND = f"rmapi rm {FOLDER_NAME}/\"{paper}\""
             try:
                 print(COMMAND)
                 os.system(COMMAND)
@@ -146,28 +143,24 @@ class GodClass():
                 print(f'Failed to delete {paper}')
 
     def synchronize(self):
-        if self.debug:
-            fp = open("./testZotero.pkl", "rb")
-            collection_items = pickle.load(fp)
-            collection_id = None
-            papers = self.getPapersTitleAndPathsFromZoteroCollection(self.zotero, collection_id, self.STORAGE_BASE_PATH, collection_items)
-        else:
-
-            # get papers that we want from Zetero Remarkable collection
+        # get papers that we want from Zetero Remarkable collection
+        for collection in self.sub_collection :
+            collection_id, cloud_path = collection
             papers = self.getPapersTitleAndPathsFromZoteroCollection(self.zotero, collection_id, self.STORAGE_BASE_PATH)
-        print(f"{len(papers)} papers in Zotero {self.COLLECTION_NAME} collection name")
-        for paper in papers:
-            print(paper.get('title'))
+            print(f"{len(papers)} papers in Zotero {self.COLLECTION_NAME} collection name")
+            for paper in papers:
+                print(paper.get('title'))
 
-        #get papers that are currently on remarkable
-        remarkable_files = self.getPapersFromRemarkable(self.RMAPI_LS)
-        print(f"{len(remarkable_files)} papers on Remarkable Device, /{self.FOLDER_NAME}")
+            #get papers that are currently on remarkable
+            remarkable_files = self.getPapersFromRemarkable(cloud_path)
+            print(f"{len(remarkable_files)} papers on Remarkable Device, {cloud_path}")
 
-        upload_list = self.getUploadListOfPapers(remarkable_files, papers)
-        self.uploadPapers(upload_list)
+            upload_list = self.getUploadListOfPapers(remarkable_files, papers)
+            self.uploadPapers(upload_list, cloud_path)
 
-        delete_list = self.getDeleteListOfPapers(remarkable_files, papers)
-        self.deletePapers(delete_list)
+            #Still need to test this a bit
+#            delete_list = self.getDeleteListOfPapers(remarkable_files, papers)
+#            self.deletePapers(delete_list)
 
 if __name__ == "__main__":
     print('------- sync started -------')
