@@ -20,12 +20,11 @@ def saveCollection(l):
 # Software practices are like a good analogy. I don't have one.
 class GodClass():
     def __init__(self, debug, limit=200):
-        pu.db
         self.debug = debug
         self.API_KEY, self.LIBRARY_ID, self.COLLECTION_NAME, self.FOLDER_NAME, self.STORAGE_BASE_PATH, self.LIBRARY_TYPE = self.get_env_vars()
         self.zotero = pyzotero.Zotero(self.LIBRARY_ID, self.LIBRARY_TYPE, self.API_KEY)
         self.collections = self.zotero.collections(limit=limit)
-        self.parent_collection_id = self.getCollectionId(self.zotero, self.COLLECTION_NAME)
+        self.parent_collection_id = self.getCollectionId(self.COLLECTION_NAME, self.collections)
         self.sub_collection = self.get_sub_collection(self.parent_collection_id, self.FOLDER_NAME)
         self.setup_file_structure(self.sub_collection)
 
@@ -75,8 +74,7 @@ class GodClass():
         STORAGE_BASE_PATH = os.getenv('STORAGE_BASE_PATH') #on local computer
         return API_KEY, LIBRARY_ID, COLLECTION_NAME, FOLDER_NAME, STORAGE_BASE_PATH, LIBRARY_TYPE
 
-    def getCollectionId(self, zotero, collection_name):
-        collections = zotero.collections(limit=200)
+    def getCollectionId(self, collection_name, collections):
         for collection in collections:
             if (collection.get('data').get('name') in collection_name):
                 return collection.get('data').get('key')
@@ -132,10 +130,10 @@ class GodClass():
                 delete_list.append(f)
         return delete_list
 
-    def deletePapers(self, delete_list):
+    def deletePapers(self, delete_list, cloud_path):
         print(f'deleting {len(delete_list)} papers')
         for paper in delete_list:
-            COMMAND = f"rmapi rm {FOLDER_NAME}/\"{paper}\""
+            COMMAND = f"rmapi rm {cloud_path}/\"{paper}\""
             try:
                 print(COMMAND)
                 os.system(COMMAND)
@@ -159,8 +157,8 @@ class GodClass():
             self.uploadPapers(upload_list, cloud_path)
 
             #Still need to test this a bit
-#            delete_list = self.getDeleteListOfPapers(remarkable_files, papers)
-#            self.deletePapers(delete_list)
+            delete_list = self.getDeleteListOfPapers(remarkable_files, papers)
+            self.deletePapers(delete_list, cloud_path)
 
 if __name__ == "__main__":
     print('------- sync started -------')
