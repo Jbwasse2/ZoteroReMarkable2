@@ -33,6 +33,9 @@ _(ensure you have a .env file, with zotero api key, and rmapi setup)_
 Then to sync, just run:
   `python3 sync.py`
   
+### TODOs
+- Get the data from Zotero offline instead of through pyzotero.
+
 ### Bugs/Errors
 - If you are geting a "Failed to establish a new connection" error, I think this is due to Zotero limiting the amount of requests a user can send. Try running the script again in a few minutes.  
 - Currently I do not have the code delete a folder on the ReMarkable2 if the subcollection is deleted in Zotero.   
